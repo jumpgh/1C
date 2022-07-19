@@ -1,0 +1,6 @@
+- name: 1c
+  hosts: 1c
+  roles:
+    - pgpro
+    - 1c
+    - 1c-bases

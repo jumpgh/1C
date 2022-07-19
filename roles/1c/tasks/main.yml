@@ -1,0 +1,89 @@
+- name: Install 3rd party utils
+  tags:
+  - onec
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg: [ ttf-mscorefonts-installer, libodbc1 ]
+    state: present
+
+
+- name: Create group grp1cv8
+  tags:
+  - onec
+  become: true
+  ansible.builtin.group:
+    name: grp1cv8
+    state: present
+
+- name: Add the user usr1cv8 appending the group grp1cv8
+  tags:
+  - onec
+  become: true
+  ansible.builtin.user:
+    name: usr1cv8
+    groups: grp1cv8
+    append: yes
+
+- name: Create a directory if it does not exist
+  tags:
+  - onec
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: usr1cv8
+    group: grp1cv8
+    state: directory
+    mode: '0755'
+  loop:
+    - /opt/1cv8
+    - /opt/1cv8/x86_64
+    - /var/lib/1cv8
+
+- name: Extract 1C Platform x64
+  tags:
+  - onec
+  become: true
+  unarchive:
+    src: '{{ onec_distribution_file }}'
+    dest: /opt/1cv8/x86_64/
+    group: grp1cv8
+    owner: usr1cv8
+
+- name: Run 1C install script
+  tags:
+  - onec
+  become: true
+  command: '/opt/1cv8/x86_64/setup-full-{{ onec_version_name }}-x86_64.run --mode unattended 
+    --enable-components server,ws,server_admin,additional_admin_functions'
+
+- name: Create 1C:Enterprise Server service
+  tags:
+  - onec
+  become: true
+  command: 'systemctl link /opt/1cv8/x86_64/{{ onec_version_name }}/srv1cv8-{{ onec_version_name }}@.service'
+
+- name: Enable and restart 1C:Enterprise Server service
+  tags:
+  - onec
+  ansible.builtin.systemd:
+    name: 'srv1cv8-{{ onec_version_name }}@default'
+    state: restarted
+    enabled: yes
+
+- name: Create 1C:Enterprise Remote Administration Server service
+  tags:
+  - onec
+  become: true
+  command: 'systemctl link /opt/1cv8/x86_64/{{ onec_version_name }}/ras-{{ onec_version_name }}.service'
+
+- name: Enable and restart 1C:Enterprise Remote Administration Server service
+  tags:
+  - onec
+  ansible.builtin.systemd:
+    name: 'ras-{{ onec_version_name }}'
+    state: restarted
+    enabled: yes
+
+
+

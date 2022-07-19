@@ -1,0 +1,148 @@
+
+- name: Download pgpro-repo-add.sh
+  become: true
+  uri:
+    url: https://repo.postgrespro.ru/pg1c-13/keys/pgpro-repo-add.sh
+    dest: /tmp/pgpro-repo-add.sh
+    mode: '0755'
+    validate_certs: no 
+  tags:
+  - pgpro
+
+- name: Add pgpro repo
+  become: true
+  command: /tmp/pgpro-repo-add.sh
+  ignore_errors: yes
+  tags:
+  - pgpro
+  
+- name: Update apt-get repo and cache
+  become: true
+  tags:
+  - pgpro
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
+- name: Install postgrespro-1c-13
+  become: true
+  tags:
+  - pgpro
+  apt:
+    pkg: [ libxslt1.1, libicu67, postgrespro-1c-13 ]
+    state: present
+
+- name: Stop postgrespro-1c-13 service before initialize cluster
+  become: true
+  tags:
+  - pgpro
+  service:
+    name: postgrespro-1c-13
+    state: stopped
+
+- name: Unmount ramdisk for postgrespro
+  become: true
+  tags:
+    - pgpro
+  mount:
+    path: /var/lib/pgpro/1c-13/data/pg_stat_tmp
+    state: unmounted
+
+- name: Remove postgres data before initialize cluster
+  tags:
+    - pgpro
+  file:
+    path: /var/lib/pgpro/1c-13/data
+    state: absent
+
+# sudo -u postgres initdb /var/lib/pgpro/1c-13/data --locale=ru_RU.UTF-8
+- name: Initialize database cluster
+  become: true
+  tags:
+  - pgpro
+  become_user: postgres
+  command: initdb /var/lib/pgpro/1c-13/data --locale=ru_RU.UTF-8
+
+- name: Ramdisk for postgrespro
+  become: true
+  tags:
+    - pgpro
+  mount:
+    src: tmpfs
+    path: /var/lib/pgpro/1c-13/data/pg_stat_tmp
+    fstype: tmpfs
+    opts: size=2G,uid=postgres,gid=postgres
+    state: mounted
+    boot: yes
+
+- name: Allow local user login
+  become: true
+  tags:
+    - pgpro
+  postgresql_pg_hba:
+    dest: /var/lib/pgpro/1c-13/data/pg_hba.conf
+    contype: local
+    users: postgres
+    databases: all
+    method: trust
+    state: present
+
+- name: Allow local auth by password
+  become: true
+  tags:
+    - pgpro
+  postgresql_pg_hba:
+    dest:  /var/lib/pgpro/1c-13/data/pg_hba.conf
+    contype: local
+    users: all
+    databases: all
+    method: md5
+    state: present
+
+- name: Allow internal network auth by password
+  become: true
+  tags:
+    - pgpro
+  postgresql_pg_hba:
+    dest:  /var/lib/pgpro/1c-13/data/pg_hba.conf
+    contype: host
+    users: all
+    databases: all
+    address: 172.16.90.0/24
+    method: md5
+    state: present
+
+- name: Disallow external network auth by password
+  become: true
+  tags:
+    - pgpro
+  postgresql_pg_hba:
+    dest:  /var/lib/pgpro/1c-13/data/pg_hba.conf
+    contype: host
+    users: all
+    databases: all
+    address: 0.0.0.0/0
+    method: md5
+    state: absent
+
+# - name: Copy postgresql.conf
+#   template:
+#     src: postgresql.conf
+#     dest: /var/lib/pgpro/1c-13/data/postgresql.conf
+#     owner: postgres
+#     group: postgres
+#     mode: 644
+
+- name: Restart and enable postgresql
+  become: true
+  tags:
+  - pgpro
+  service:
+    name: postgrespro-1c-13
+    state: restarted
+    enabled: yes
+
+- name: Alter user postgres
+  tags:
+  - pgpro
+  command: "psql -U postgres -c \"alter user postgres with password '{{ postgres_pass }}';\""
+  become: true
+

@@ -1,0 +1,15 @@
+all:
+  hosts:
+    1c:
+      ansible_ssh_host: hostname
+      ansible_ssh_user: root
+      onec_version_name: 8.3.21.1302
+      onec_distribution_file: server64_8_3_21_1302.tar.gz
+      postgres_host: localhost
+      postgres_user: postgres
+      postgres_pass: pas3w0rd
+      onec_bases:
+        - name: test
+          description: test
+        - name: test2
+          description: test2

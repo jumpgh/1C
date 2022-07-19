@@ -1,0 +1,27 @@
+- name: locale-gen ru_RU.UTF-8
+  tags:
+  - common
+  locale_gen:
+    name: ru_RU.UTF-8
+    state: present
+
+- name: reconfigure locales
+  tags:
+  - common
+  become: true
+  command: dpkg-reconfigure -f noninteractive locales
+
+- name: Install 3rd party utils
+  tags:
+  - common
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg: [ imagemagick, libgsf-1-114, gnupg2, curl, mlocate, lsb-release, sudo, htop, lsb-release, net-tools ]
+    state: present
+
+- name: Update a database for mlocate
+  tags:
+  - common
+  become: true
+  command: updatedb

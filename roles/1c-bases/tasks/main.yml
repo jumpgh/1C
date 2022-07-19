@@ -1,0 +1,25 @@
+- name: Get 1C cluster uuid
+  tags:
+  - onec-bases
+  shell: "/opt/1cv8/x86_64/{{ onec_version_name }}/rac cluster list localhost:1545 | grep \"cluster  \" | awk -F, '{split($0,arr,\":\"); x = arr[2]; gsub(\" \",\"\",x)}END{print x;}'"
+  register: cluster_uuid
+
+- name: Print return information from the previous task
+  tags:
+  - onec-bases
+  debug: msg={{ cluster_uuid.stdout }}
+
+- name: Create 1C bases
+  tags:
+  - onec-bases
+  command: /opt/1cv8/x86_64/{{ onec_version_name }}/rac infobase create 
+    --cluster={{ cluster_uuid.stdout }} 
+    --create-database --name={{ item.name }} --descr={{ item.description }} 
+    --dbms=PostgreSQL --db-server={{ postgres_host }} 
+    --db-name={{ item.name }} --db-user={{ postgres_user }} --db-pwd={{ postgres_pass }} 
+    --license-distribution=allow --locale=ru
+  loop: "{{ onec_bases }}"
+
+      
+
+

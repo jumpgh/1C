@@ -14,7 +14,7 @@ https://forum.infostart.ru/forum15/topic257394/
 
 Добавление баз
 ```
-ansible-playbook playbook.yml -i inventory --tags onec-bases --extra-vars='{"onec_bases": [{"name":"test3", "description": "test"}]}'
+ansible-playbook playbook.yml -i inventory.yaml --tags onec-bases --extra-vars='{"onec_bases": [{"name":"test3", "description": "test"}]}'
 ```
 
 Важно прописать параметры postgres в `pgpro/templates/postgresql.conf` в соответствии со сценарием использования и имеющимся железом. Можно воспользоваться [одним из готовых калькуляторов](http://pgconfigurator.cybertec.at/)

@@ -7,7 +7,7 @@
 
 Раскатка с нуля
 ```
-ansible-playbook -i inventory playbook.yml
+ansible-playbook playbook.yml -i inventory.yaml
 ```
 *NB!* 1С неадекватно восприниманет нижнее подчеркивание в названии баз и полей 
 https://forum.infostart.ru/forum15/topic257394/

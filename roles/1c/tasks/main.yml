@@ -43,7 +43,8 @@
 - name: Extract 1C Platform x64
   tags:
   - onec
-  become: true
+  - update_platform
+  #become: true
   unarchive:
     src: '{{ onec_distribution_file }}'
     dest: /opt/1cv8/x86_64/
@@ -53,19 +54,42 @@
 - name: Run 1C install script
   tags:
   - onec
+  - update_platform
   become: true
   command: '/opt/1cv8/x86_64/setup-full-{{ onec_version_name }}-x86_64.run --mode unattended 
     --enable-components server,ws,server_admin,additional_admin_functions'
 
+- name: Remove old 1C services
+  tags:
+  - update_platform
+  become: true
+  ignore_errors: yes
+  shell: "{{ item }}"
+  with_items:
+  - systemctl stop $(systemctl list-unit-files --no-legend srv1cv8-* | awk '{print $1}')
+  - systemctl stop $(systemctl list-unit-files --no-legend ras-* | awk '{print $1}')
+  - systemctl disable $(systemctl list-unit-files --no-legend srv1cv8-* | awk '{print $1}')
+  - systemctl disable $(systemctl list-unit-files --no-legend ras-* | awk '{print $1}')
+
+- name: Remove old 1C:Enterprise Remote Administration Server service
+  tags:
+  - onec
+  - update_platform
+  become: true
+  ignore_errors: yes
+  shell: ""
+
 - name: Create 1C:Enterprise Server service
   tags:
   - onec
+  - update_platform
   become: true
   command: 'systemctl link /opt/1cv8/x86_64/{{ onec_version_name }}/srv1cv8-{{ onec_version_name }}@.service'
 
 - name: Enable and restart 1C:Enterprise Server service
   tags:
   - onec
+  - update_platform
   ansible.builtin.systemd:
     name: 'srv1cv8-{{ onec_version_name }}@default'
     state: restarted
@@ -74,12 +98,14 @@
 - name: Create 1C:Enterprise Remote Administration Server service
   tags:
   - onec
+  - update_platform
   become: true
   command: 'systemctl link /opt/1cv8/x86_64/{{ onec_version_name }}/ras-{{ onec_version_name }}.service'
 
 - name: Enable and restart 1C:Enterprise Remote Administration Server service
   tags:
   - onec
+  - update_platform
   ansible.builtin.systemd:
     name: 'ras-{{ onec_version_name }}'
     state: restarted

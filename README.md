@@ -33,3 +33,4 @@ onec_distribution_file: server64_8_3_22_1603.tar.gz
 ansible-playbook playbook.yml -i inventory.yaml --tags update_platform 
 ```
 сервисы запуска старой платформы будут удалены, но файлы самой платформы останутся. 
+

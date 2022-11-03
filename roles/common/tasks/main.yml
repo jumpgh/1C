@@ -11,6 +11,24 @@
   become: true
   command: dpkg-reconfigure -f noninteractive locales
 
+- name: Install software-properties-common 2 enable contrib
+  tags:
+  - common
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+    pkg: [ software-properties-common ]
+    state: present
+
+- name: Enable contrib & non-free
+  tags:
+  - common
+  become: true
+  shell: "{{ item }}"
+  with_items:
+  - apt-add-repository contrib
+  - apt-add-repository non-free
+
 - name: Install 3rd party utils
   tags:
   - common

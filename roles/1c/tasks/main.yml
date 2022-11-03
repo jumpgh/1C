@@ -71,14 +71,6 @@
   - systemctl disable $(systemctl list-unit-files --no-legend srv1cv8-* | awk '{print $1}')
   - systemctl disable $(systemctl list-unit-files --no-legend ras-* | awk '{print $1}')
 
-- name: Remove old 1C:Enterprise Remote Administration Server service
-  tags:
-  - onec
-  - update_platform
-  become: true
-  ignore_errors: yes
-  shell: ""
-
 - name: Create 1C:Enterprise Server service
   tags:
   - onec

@@ -1,6 +1,7 @@
 - name: locale-gen ru_RU.UTF-8
   tags:
   - common
+  become: true
   locale_gen:
     name: ru_RU.UTF-8
     state: present

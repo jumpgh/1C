@@ -34,3 +34,5 @@ ansible-playbook playbook.yml -i inventory.yaml --tags update_platform
 ```
 сервисы запуска старой платформы будут удалены, но файлы самой платформы останутся. 
 
+На клиентской части так же обновить платформу и [средства администрирования кластера](https://infostart.ru/1c/articles/1347969/)
+

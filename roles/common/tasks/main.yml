@@ -25,6 +25,7 @@
   tags:
   - common
   become: true
+  when: ansible_distribution == 'Debian'
   shell: "{{ item }}"
   with_items:
   - apt-add-repository contrib
@@ -36,7 +37,8 @@
   become: true
   ansible.builtin.apt:
     update_cache: yes
-    pkg: [ imagemagick, libgsf-1-114, gnupg2, curl, mlocate, lsb-release, sudo, htop, lsb-release, net-tools ]
+    pkg: [ imagemagick, unixodbc, ttf-mscorefonts-installer, libgsf-1-114, 
+      gnupg2, curl, mlocate, lsb-release, sudo, htop, lsb-release, net-tools ]
     state: present
 
 - name: Update a database for mlocate

@@ -2,7 +2,7 @@
 - name: Download pgpro-repo-add.sh
   become: true
   uri:
-    url: https://repo.postgrespro.ru/pg1c-13/keys/pgpro-repo-add.sh
+    url: https://repo.postgrespro.ru/1c-16/keys/pgpro-repo-add.sh
     dest: /tmp/pgpro-repo-add.sh
     mode: '0755'
     validate_certs: no 
@@ -22,20 +22,30 @@
   - pgpro
   apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
 
-- name: Install postgrespro-1c-13
+- name: Install postgrespro-1c-16
   become: true
   tags:
   - pgpro
+  when: ansible_distribution == 'Debian'
   apt:
-    pkg: [ libxslt1.1, libicu67, postgrespro-1c-13 ]
+    pkg: [ libxslt1.1, libicu67, postgrespro-1c-16 ]
     state: present
 
-- name: Stop postgrespro-1c-13 service before initialize cluster
+- name: Install postgrespro-1c-16
+  become: true
+  tags:
+  - pgpro
+  when: ansible_distribution == 'Ubuntu'
+  apt:
+    pkg: [ libxslt1.1, libicu66, postgrespro-1c-16 ]
+    state: present
+
+- name: Stop postgrespro-1c-16 service before initialize cluster
   become: true
   tags:
   - pgpro
   service:
-    name: postgrespro-1c-13
+    name: postgrespro-1c-16
     state: stopped
 
 - name: Unmount ramdisk for postgrespro
@@ -43,23 +53,25 @@
   tags:
     - pgpro
   mount:
-    path: /var/lib/pgpro/1c-13/data/pg_stat_tmp
+    path: /var/lib/pgpro/1c-16/data/pg_stat_tmp
     state: unmounted
 
 - name: Remove postgres data before initialize cluster
+  become: true
   tags:
     - pgpro
   file:
-    path: /var/lib/pgpro/1c-13/data
+    path: /var/lib/pgpro/1c-16/data
     state: absent
 
-# sudo -u postgres initdb /var/lib/pgpro/1c-13/data --locale=ru_RU.UTF-8
+# sudo -u postgres initdb /var/lib/pgpro/1c-16/data --locale=ru_RU.UTF-8
 - name: Initialize database cluster
   become: true
   tags:
   - pgpro
-  become_user: postgres
-  command: initdb /var/lib/pgpro/1c-13/data --locale=ru_RU.UTF-8
+  #become_user: postgres
+  #command: initdb /var/lib/pgpro/1c-16/data --locale=ru_RU.UTF-8
+  shell: sudo -u postgres initdb /var/lib/pgpro/1c-16/data --locale=ru_RU.UTF-8
 
 - name: Ramdisk for postgrespro
   become: true
@@ -67,7 +79,7 @@
     - pgpro
   mount:
     src: tmpfs
-    path: /var/lib/pgpro/1c-13/data/pg_stat_tmp
+    path: /var/lib/pgpro/1c-16/data/pg_stat_tmp
     fstype: tmpfs
     opts: size=2G,uid=postgres,gid=postgres
     state: mounted
@@ -78,7 +90,7 @@
   tags:
     - pgpro
   postgresql_pg_hba:
-    dest: /var/lib/pgpro/1c-13/data/pg_hba.conf
+    dest: /var/lib/pgpro/1c-16/data/pg_hba.conf
     contype: local
     users: postgres
     databases: all
@@ -90,7 +102,7 @@
   tags:
     - pgpro
   postgresql_pg_hba:
-    dest:  /var/lib/pgpro/1c-13/data/pg_hba.conf
+    dest:  /var/lib/pgpro/1c-16/data/pg_hba.conf
     contype: local
     users: all
     databases: all
@@ -102,7 +114,7 @@
   tags:
     - pgpro
   postgresql_pg_hba:
-    dest:  /var/lib/pgpro/1c-13/data/pg_hba.conf
+    dest:  /var/lib/pgpro/1c-16/data/pg_hba.conf
     contype: host
     users: all
     databases: all
@@ -115,7 +127,7 @@
   tags:
     - pgpro
   postgresql_pg_hba:
-    dest:  /var/lib/pgpro/1c-13/data/pg_hba.conf
+    dest:  /var/lib/pgpro/1c-16/data/pg_hba.conf
     contype: host
     users: all
     databases: all
@@ -136,11 +148,12 @@
   tags:
   - pgpro
   service:
-    name: postgrespro-1c-13
+    name: postgrespro-1c-16
     state: restarted
     enabled: yes
 
 - name: Alter user postgres
+  become: true
   tags:
   - pgpro
   command: "psql -U postgres -c \"alter user postgres with password '{{ postgres_pass }}';\""

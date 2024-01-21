@@ -1,5 +1,5 @@
 
-Нет никакой причины, кроме вынужденной, чтобы приличному человеку копаться в такой субстанции, как 1C, тем не менее, Ansible скрипт для развертывания 1С Linux 8.3.21(22) + PostgresPro-13-1c на Debian 11 Bullseye по мотивам статьи [Единый дистрибутив 1С:Предприятие для Linux. Установка сервера](https://interface31.ru/tech_it/2021/10/edinyy-distributiv-1c-dlya-linux-server.html)
+Нет никакой причины, кроме вынужденной, чтобы приличному человеку копаться в такой субстанции, как 1C, тем не менее, Ansible скрипт для развертывания 1С Linux 8.3.21(22,23) + PostgresPro-16-1c на Debian 11 Bullseye или Ubuntu 22.04 по мотивам статьи [Единый дистрибутив 1С:Предприятие для Linux. Установка сервера](https://interface31.ru/tech_it/2021/10/edinyy-distributiv-1c-dlya-linux-server.html)
 
 Дистриубутив платформы качаем на портале [1С ИТС](https://interface31.ru/version_file?nick=Platform83&ver=8.3.20.1710&path=Platform%5c8_3_20_1710%5cserver64_8_3_20_1710.tar.gz) и помещаем в папку `roles/1c/files/`.
 

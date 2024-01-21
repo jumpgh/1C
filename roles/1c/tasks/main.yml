@@ -44,7 +44,7 @@
   tags:
   - onec
   - update_platform
-  #become: true
+  become: true
   unarchive:
     src: '{{ onec_distribution_file }}'
     dest: /opt/1cv8/x86_64/
@@ -79,6 +79,7 @@
   command: 'systemctl link /opt/1cv8/x86_64/{{ onec_version_name }}/srv1cv8-{{ onec_version_name }}@.service'
 
 - name: Enable and restart 1C:Enterprise Server service
+  become: true
   tags:
   - onec
   - update_platform
@@ -88,6 +89,7 @@
     enabled: yes
 
 - name: Create 1C:Enterprise Remote Administration Server service
+  become: true
   tags:
   - onec
   - update_platform
@@ -95,6 +97,7 @@
   command: 'systemctl link /opt/1cv8/x86_64/{{ onec_version_name }}/ras-{{ onec_version_name }}.service'
 
 - name: Enable and restart 1C:Enterprise Remote Administration Server service
+  become: true
   tags:
   - onec
   - update_platform
